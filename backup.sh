@@ -1,23 +1,39 @@
 #!/bin/bash
 
+# This bash script is used to backup a user's Projects directory to /tmp
+
 user=$(whoami)
-input=/home/$user
-output=/tmp/${user}_home_$(date +%Y-%m-%d_%H%M%S).tar.gz
+
+if [ -z $1 ]; then
+    echo "Provide directory please"
+    exit 1
+else
+    # how to put "~/Projects/$1" correctly here?
+    if [ ! -d "$1" ]; then
+        echo "Required $1 directory doesn't exist"
+        exit 1
+    else
+        input=$1
+        # how to regexp project folder name?
+        output=/tmp/${user}_Project_$(date +%Y-%m-%d_%H%M%S).tar.gz
+    fi
+    
+fi
 
 function total_files {
-        find $1 -type f | wc -l
+    find $1 -type f | wc -l
 }
 
 function total_directories {
-        find $1 -type d | wc -l
+    find $1 -type d | wc -l
 }
 
 function total_archived_directories {
-        tar -tzf $1 | grep  /$ | wc -l
+    tar -tzf $1 | grep  /$ | wc -l
 }
 
 function total_archived_files {
-        tar -tzf $1 | grep -v /$ | wc -l
+    tar -tzf $1 | grep -v /$ | wc -l
 }
 
 tar -czf $output $input 2> /dev/null
@@ -34,9 +50,9 @@ echo "Files archived: $arch_files"
 echo "Directories archived: $arch_directories"
 
 if [ $src_files -eq $arch_files ]; then
-        echo "Backup of $input completed!"
-        echo "Details about the output backup file:"
-        ls -l $output
+    echo "Backup of $input completed!"
+    echo "Details about the output backup file:"
+    ls -l $output
 else
-        echo "Backup of $input failed!"
+    echo "Backup of $input failed!"
 fi
